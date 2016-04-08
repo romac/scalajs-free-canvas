@@ -2,8 +2,9 @@
 package me.romac
 package freecanvas
 
-import cats.{Id, ~>}
-import cats.free.Free
+import cats.{ ~> }
+import cats.implicits._
+import cats.free.{ Free, Trampoline }
 import cats.arrow.NaturalTransformation
 
 import me.romac.freecanvas.{ Canvas => C }
@@ -16,12 +17,14 @@ object Graphics {
   val unit  = ()
   val const = Function.const _
 
-  def interpretWith(ctx: C.Context2D): GraphicsF ~> Id = new NaturalTransformation[GraphicsF, Id] {
+  def interpretWith(ctx: C.Context2D): GraphicsF ~> Trampoline = new NaturalTransformation[GraphicsF, Trampoline] {
     import scala.scalajs.js.timers
 
-    def apply[A](fa: GraphicsF[A]): Id[A] = fa match {
-      case SetLineWidth(value, next)                => ctx.lineWidth = value; next
-      case SetFillStyle(value, next)                => ctx.fillStyle = value; next
+    import Trampoline.delay
+
+    def apply[A](fa: GraphicsF[A]): Trampoline[A] = fa match {
+      case SetLineWidth(value, next)                => ctx.lineWidth = value; delay(next)
+      case SetFillStyle(value, next)                => ctx.fillStyle = value; delay(next)
       // case SetStrokeStyle(value, next)           => ctx.setStrokeStyle(value); next
       // case SetShadowColor(value, next)           => ctx.setShadowColor(value); next
       // case SetShadowBlur(value, next)            => ctx.setLineWidth(value); next
@@ -30,18 +33,18 @@ object Graphics {
       // case SetLineCap(value, next)               => ctx.setLineWidth(value); next
       // case SetComposite(value, next)             => ctx.setLineWidth(value); next
       // case SetAlpha(value, next)                 => ctx.setLineWidth(value); next
-      case BeginPath(next)                          => ctx.beginPath(); next
+      case BeginPath(next)                          => ctx.beginPath(); delay(next)
       // case Stroke(next)                          => ctx.setLineWidth(value); next
-      case Fill(next)                               => ctx.fill(); next
+      case Fill(next)                               => ctx.fill(); delay(next)
       // case Clip(next)                            => ctx.setLineWidth(value); next
       // case LineTo(x, next)                       => ctx.setLineWidth(value); next
       // case MoveTo(x, next)                       => ctx.setLineWidth(value); next
-      case ClosePath(next)                       => ctx.closePath(); next
-      case Arc(C.Arc(x, y, r, s, e), next)          => ctx.arc(x, y, r, s, e); next
-      case Rect(C.Rectangle(x, y, w, h), next)      => ctx.rect(x, y, w, h); next
-      case FillRect(C.Rectangle(x, y, w, h), next)  => ctx.fillRect(x, y, w, h); next
+      case ClosePath(next)                       => ctx.closePath(); delay(next)
+      case Arc(C.Arc(x, y, r, s, e), next)          => ctx.arc(x, y, r, s, e); delay(next)
+      case Rect(C.Rectangle(x, y, w, h), next)      => ctx.rect(x, y, w, h); delay(next)
+      case FillRect(C.Rectangle(x, y, w, h), next)  => ctx.fillRect(x, y, w, h); delay(next)
       // case StrokeRect(value, next)               => ctx.setLineWidth(value); next
-      case ClearRect(C.Rectangle(x, y, w, h), next) => ctx.clearRect(x, y, w, h); next
+      case ClearRect(C.Rectangle(x, y, w, h), next) => ctx.clearRect(x, y, w, h); delay(next)
       // case Scale(x, next)                        => ctx.setLineWidth(value); next
       // case Rotate(angle, next)                   => ctx.setLineWidth(value); next
       // case Translate(x, next)                    => ctx.setLineWidth(value); next
@@ -60,16 +63,16 @@ object Graphics {
       // case CreateImageData(width, next)          => ctx.setLineWidth(value); next
       // case CreateImageDataCopy(data, next)       => ctx.setLineWidth(value); next
       // case DrawImage(source, next)               => ctx.setLineWidth(value); next
-      case SetTimeout(value, delay, next) =>
-        timers.setTimeout(delay) {
+      case SetTimeout(value, timeout, next) =>
+        timers.setTimeout(timeout) {
           Graphics.run(ctx)(value)
         }
-        next
+        delay(next)
     }
   }
 
-  def run[A](ctx: C.Context2D)(graphics: Graphics[A]): Id[A] = {
-    graphics.foldMap(interpretWith(ctx))
+  def run[A](ctx: C.Context2D)(graphics: Graphics[A]): A = {
+    graphics.foldMap(interpretWith(ctx)).run
   }
 
   def withContext[A](action: Graphics[A]): Graphics[A] =
