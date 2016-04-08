@@ -30,18 +30,19 @@ object Main extends JSApp {
 
   import Color._
 
-  val points = List(
-    Point("A",  2, 10, Red, true),
-    Point("A1", 2, 10, Red),
-    Point("A2", 2, 5,  Red),
-    Point("A3", 8, 4,  Red),
-    Point("B",  5, 8,  Blue, true),
-    Point("B1", 5, 8,  Blue),
-    Point("B2", 7, 5,  Blue),
-    Point("B3", 6, 4,  Blue),
-    Point("C",  1, 2,  Green, true),
-    Point("C1", 1, 2,  Green),
-    Point("C2", 4, 9,  Green)
+  import scala.util.Random
+
+  val rnd = new Random()
+  val colors = Vector(Red, Blue, Green)
+
+  val randomPoints = (0 to 1000) map { i =>
+    Point("", rnd.nextInt(160), rnd.nextInt(160), colors(rnd.nextInt(3)))
+  }
+
+  val points = randomPoints.toList ++ List(
+    Point("Red", rnd.nextInt(160), rnd.nextInt(160), Red, true),
+    Point("Green", rnd.nextInt(160), rnd.nextInt(160), Green, true),
+    Point("Blue", rnd.nextInt(160), rnd.nextInt(160), Blue, true)
   )
 
   def mean(values: Seq[Double]): Double =
@@ -73,12 +74,12 @@ object Main extends JSApp {
     (newCentroids, newPoints)
   }
 
-  val SCALE = 50
-  val SIZE  = 10
+  val SCALE = 4
+  val SIZE  = 4
 
   def drawPoint(point: Point): G.Graphics[Unit] = point match {
     case Point(_, x, y, color, true) =>
-      val rect = C.Rectangle(x * SCALE, y * SCALE, SIZE, SIZE)
+      val rect = C.Rectangle(x * SCALE, y * SCALE, SIZE * 2, SIZE * 2)
 
       for {
         _ <- G.setFillStyle(color.name)
