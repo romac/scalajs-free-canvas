@@ -17,62 +17,63 @@ object Graphics {
   val unit  = ()
   val const = Function.const _
 
-  def interpretWith(ctx: C.Context2D): GraphicsF ~> Trampoline = new NaturalTransformation[GraphicsF, Trampoline] {
+  class DOMIntepreter(ctx: C.Context2D) extends (GraphicsF ~> Trampoline) {
     import scala.scalajs.js.timers
 
-    import Trampoline.delay
+    import Trampoline.done
 
     def apply[A](fa: GraphicsF[A]): Trampoline[A] = fa match {
-      case SetLineWidth(value, next)                => ctx.lineWidth = value; delay(next)
-      case SetFillStyle(value, next)                => ctx.fillStyle = value; delay(next)
-      // case SetStrokeStyle(value, next)           => ctx.setStrokeStyle(value); next
-      // case SetShadowColor(value, next)           => ctx.setShadowColor(value); next
-      // case SetShadowBlur(value, next)            => ctx.setLineWidth(value); next
-      // case SetShadowOffsetX(value, next)         => ctx.setLineWidth(value); next
-      // case SetShadowOffsetY(value, next)         => ctx.setLineWidth(value); next
-      // case SetLineCap(value, next)               => ctx.setLineWidth(value); next
-      // case SetComposite(value, next)             => ctx.setLineWidth(value); next
-      // case SetAlpha(value, next)                 => ctx.setLineWidth(value); next
-      case BeginPath(next)                          => ctx.beginPath(); delay(next)
-      // case Stroke(next)                          => ctx.setLineWidth(value); next
-      case Fill(next)                               => ctx.fill(); delay(next)
-      // case Clip(next)                            => ctx.setLineWidth(value); next
-      // case LineTo(x, next)                       => ctx.setLineWidth(value); next
-      // case MoveTo(x, next)                       => ctx.setLineWidth(value); next
-      case ClosePath(next)                       => ctx.closePath(); delay(next)
-      case Arc(C.Arc(x, y, r, s, e), next)          => ctx.arc(x, y, r, s, e); delay(next)
-      case Rect(C.Rectangle(x, y, w, h), next)      => ctx.rect(x, y, w, h); delay(next)
-      case FillRect(C.Rectangle(x, y, w, h), next)  => ctx.fillRect(x, y, w, h); delay(next)
-      // case StrokeRect(value, next)               => ctx.setLineWidth(value); next
-      case ClearRect(C.Rectangle(x, y, w, h), next) => ctx.clearRect(x, y, w, h); delay(next)
-      // case Scale(x, next)                        => ctx.setLineWidth(value); next
-      // case Rotate(angle, next)                   => ctx.setLineWidth(value); next
-      // case Translate(x, next)                    => ctx.setLineWidth(value); next
-      // case Transform(transform, next)            => ctx.setLineWidth(value); next
-      // case TextAlign(next)                       => ctx.setLineWidth(value); next
-      // case SetTextAlign(value, next)             => ctx.setLineWidth(value); next
-      // case Font(next)                            => ctx.setLineWidth(value); next
-      // case SetFont(value, next)                  => ctx.setLineWidth(value); next
-      // case FillText(text, next)                  => ctx.setLineWidth(value); next
-      // case StrokeText(text, next)                => ctx.setLineWidth(value); next
-      // case MeasureText(value, next)              => ctx.setLineWidth(value); next
-      // case Save(next)                            => ctx.setLineWidth(value); next
-      // case Restore(next)                         => ctx.setLineWidth(value); next
-      // case GetImageData(x, next)                 => ctx.setLineWidth(value); next
-      // case PutImageData(data, next)              => ctx.setLineWidth(value); next
-      // case CreateImageData(width, next)          => ctx.setLineWidth(value); next
-      // case CreateImageDataCopy(data, next)       => ctx.setLineWidth(value); next
-      // case DrawImage(source, next)               => ctx.setLineWidth(value); next
-      case SetTimeout(value, timeout, next) =>
+      case SetLineWidth(value)                => ctx.lineWidth = value; done(())
+      case SetFillStyle(value)                => ctx.fillStyle = value; done(())
+      // case SetStrokeStyle(value)           => ctx.setStrokeStyle(value); done(())
+      // case SetShadowColor(value)           => ctx.setShadowColor(value); done(())
+      // case SetShadowBlur(value)            => ctx.setLineWidth(value); done(())
+      // case SetShadowOffsetX(value)         => ctx.setLineWidth(value); done(())
+      // case SetShadowOffsetY(value)         => ctx.setLineWidth(value); done(())
+      // case SetLineCap(value)               => ctx.setLineWidth(value); done(())
+      // case SetComposite(value)             => ctx.setLineWidth(value); done(())
+      // case SetAlpha(value)                 => ctx.setLineWidth(value); done(())
+      case BeginPath                          => ctx.beginPath(); done(())
+      // case Stroke                          => ctx.setLineWidth(value); done(())
+      case Fill                               => ctx.fill(); done(())
+      // case Clip                            => ctx.setLineWidth(value); done(())
+      // case LineTo(x)                       => ctx.setLineWidth(value); done(())
+      // case MoveTo(x)                       => ctx.setLineWidth(value); done(())
+      case ClosePath                          => ctx.closePath(); done(())
+      case Arc(C.Arc(x, y, r, s, e))          => ctx.arc(x, y, r, s, e); done(())
+      case Rect(C.Rectangle(x, y, w, h))      => ctx.rect(x, y, w, h); done(())
+      case FillRect(C.Rectangle(x, y, w, h))  => ctx.fillRect(x, y, w, h); done(())
+      // case StrokeRect(value)               => ctx.setLineWidth(value); done(())
+      case ClearRect(C.Rectangle(x, y, w, h)) => ctx.clearRect(x, y, w, h); done(())
+      // case Scale(x)                        => ctx.setLineWidth(value); done(())
+      // case Rotate(angle)                   => ctx.setLineWidth(value); done(())
+      // case Translate(x)                    => ctx.setLineWidth(value); done(())
+      // case Transform(transform)            => ctx.setLineWidth(value); done(())
+      // case TextAlign                       => ctx.setLineWidth(value); done(())
+      // case SetTextAlign(value)             => ctx.setLineWidth(value); done(())
+      // case Font                            => ctx.setLineWidth(value); done(())
+      // case SetFont(value)                  => ctx.setLineWidth(value); done(())
+      // case FillText(text)                  => ctx.setLineWidth(value); done(())
+      // case StrokeText(text)                => ctx.setLineWidth(value); done(())
+      // case MeasureText(value)              => ctx.setLineWidth(value); done(())
+      // case Save                            => ctx.setLineWidth(value); done(())
+      // case Restore                         => ctx.setLineWidth(value); done(())
+      // case GetImageData(x)                 => ctx.setLineWidth(value); done(())
+      // case PutImageData(data)              => ctx.setLineWidth(value); done(())
+      // case CreateImageData(width)          => ctx.setLineWidth(value); done(())
+      // case CreateImageDataCopy(data)       => ctx.setLineWidth(value); done(())
+      // case DrawImage(source)               => ctx.setLineWidth(value); done(())
+      case SetTimeout(value, timeout) =>
         timers.setTimeout(timeout) {
           Graphics.run(ctx)(value)
         }
-        delay(next)
+        done(())
     }
   }
 
   def run[A](ctx: C.Context2D)(graphics: Graphics[A]): A = {
-    graphics.foldMap(interpretWith(ctx)).run
+    val interpret = new DOMIntepreter(ctx)
+    graphics.foldMap(interpret).run
   }
 
   def withContext[A](action: Graphics[A]): Graphics[A] =
@@ -89,47 +90,47 @@ object Graphics {
       _ <- closePath
     } yield a
 
-  def setLineWidth         (value: Int)                                                      : Graphics[Unit]          = Free.liftF(SetLineWidth(value, unit))
-  def setFillStyle         (value: String)                                                   : Graphics[Unit]          = Free.liftF(SetFillStyle(value, unit))
-  def setStrokeStyle       (value: String)                                                   : Graphics[Unit]          = Free.liftF(SetStrokeStyle(value, unit))
-  def setShadowColor       (value: String)                                                   : Graphics[Unit]          = Free.liftF(SetShadowColor(value, unit))
-  def setShadowBlur        (value: Int)                                                      : Graphics[Unit]          = Free.liftF(SetShadowBlur(value, unit))
-  def setShadowOffsetX     (value: Int)                                                      : Graphics[Unit]          = Free.liftF(SetShadowOffsetX(value, unit))
-  def setShadowOffsetY     (value: Int)                                                      : Graphics[Unit]          = Free.liftF(SetShadowOffsetY(value, unit))
-  def setLineCap           (value: C.LineCap)                                                : Graphics[Unit]          = Free.liftF(SetLineCap(value, unit))
-  def setComposite         (value: C.Composite)                                              : Graphics[Unit]          = Free.liftF(SetComposite(value, unit))
-  def setAlpha             (value: Int)                                                      : Graphics[Unit]          = Free.liftF(SetAlpha(value, unit))
-  def beginPath                                                                              : Graphics[Unit]          = Free.liftF(BeginPath(unit))
-  def stroke                                                                                 : Graphics[Unit]          = Free.liftF(Stroke(unit))
-  def fill                                                                                   : Graphics[Unit]          = Free.liftF(Fill(unit))
-  def clip                                                                                   : Graphics[Unit]          = Free.liftF(Clip(unit))
-  def lineTo               (x: Int, y: Int)                                                  : Graphics[Unit]          = Free.liftF(LineTo(x, y, unit))
-  def moveTo               (x: Int, y: Int)                                                  : Graphics[Unit]          = Free.liftF(MoveTo(x, y, unit))
-  def closePath                                                                              : Graphics[Unit]          = Free.liftF(ClosePath(unit))
-  def arc                  (value: C.Arc)                                                    : Graphics[Unit]          = Free.liftF(Arc(value, unit))
-  def rect                 (value: C.Rectangle)                                              : Graphics[Unit]          = Free.liftF(Rect(value, unit))
-  def fillRect             (value: C.Rectangle)                                              : Graphics[Unit]          = Free.liftF(FillRect(value, unit))
-  def strokeRect           (value: C.Rectangle)                                              : Graphics[Unit]          = Free.liftF(StrokeRect(value, unit))
-  def clearRect            (value: C.Rectangle)                                              : Graphics[Unit]          = Free.liftF(ClearRect(value, unit))
-  def scale                (x: Int, y: Int)                                                  : Graphics[Unit]          = Free.liftF(Scale(x, y, unit))
-  def rotate               (angle: Int)                                                      : Graphics[Unit]          = Free.liftF(Rotate(angle, unit))
-  def translate            (x: Int, y: Int)                                                  : Graphics[Unit]          = Free.liftF(Translate(x, y, unit))
-  def transform            (transform: C.Transform)                                          : Graphics[Unit]          = Free.liftF(Transform(transform, unit))
-  def textAlign                                                                              : Graphics[C.TextAlign]   = Free.liftF(TextAlign(identity))
-  def setTextAlign         (value: C.TextAlign)                                              : Graphics[Unit]          = Free.liftF(SetTextAlign(value, unit))
-  def font                                                                                   : Graphics[String]        = Free.liftF(Font(identity))
-  def setFont              (value: String)                                                   : Graphics[Unit]          = Free.liftF(SetFont(value, unit))
-  def fillText             (text: String, x: Int, y: Int)                                    : Graphics[Unit]          = Free.liftF(FillText(text, x, y, unit))
-  def strokeText           (text: String, x: Int, y: Int)                                    : Graphics[Unit]          = Free.liftF(StrokeText(text, x, y, unit))
-  def measureText          (value: String)                                                   : Graphics[C.TextMetrics] = Free.liftF(MeasureText(value, identity))
-  def save                                                                                   : Graphics[Unit]          = Free.liftF(Save(unit))
-  def restore                                                                                : Graphics[Unit]          = Free.liftF(Restore(unit))
-  def getImageData         (x: Int, y: Int, width: Int, height: Int)                         : Graphics[C.ImageData]   = Free.liftF(GetImageData(x, y, width, height, identity))
-  def putImageData         (data: C.ImageData, x: Int, y: Int)                               : Graphics[Unit]          = Free.liftF(PutImageData(data, x, y, unit))
-  def createImageData      (width: Int, height: Int)                                         : Graphics[C.ImageData]   = Free.liftF(CreateImageData(width, height, identity))
-  def createImageDataCopy  (data: C.ImageData)                                               : Graphics[C.ImageData]   = Free.liftF(CreateImageDataCopy(data, identity))
-  def drawImage            (source: C.ImageSource, x: Int, y: Int)                           : Graphics[Unit]          = Free.liftF(DrawImage(source, x, y, unit))
-  def setTimeout(value: Graphics[Unit], delay: Int): Graphics[Unit] = Free.liftF(SetTimeout(value, delay, unit))
+  def setLineWidth         (value: Int)                                                      : Graphics[Unit]          = SetLineWidth(value).lift
+  def setFillStyle         (value: String)                                                   : Graphics[Unit]          = SetFillStyle(value).lift
+  def setStrokeStyle       (value: String)                                                   : Graphics[Unit]          = SetStrokeStyle(value).lift
+  def setShadowColor       (value: String)                                                   : Graphics[Unit]          = SetShadowColor(value).lift
+  def setShadowBlur        (value: Int)                                                      : Graphics[Unit]          = SetShadowBlur(value).lift
+  def setShadowOffsetX     (value: Int)                                                      : Graphics[Unit]          = SetShadowOffsetX(value).lift
+  def setShadowOffsetY     (value: Int)                                                      : Graphics[Unit]          = SetShadowOffsetY(value).lift
+  def setLineCap           (value: C.LineCap)                                                : Graphics[Unit]          = SetLineCap(value).lift
+  def setComposite         (value: C.Composite)                                              : Graphics[Unit]          = SetComposite(value).lift
+  def setAlpha             (value: Int)                                                      : Graphics[Unit]          = SetAlpha(value).lift
+  def beginPath                                                                              : Graphics[Unit]          = BeginPath.lift
+  def stroke                                                                                 : Graphics[Unit]          = Stroke.lift
+  def fill                                                                                   : Graphics[Unit]          = Fill.lift
+  def clip                                                                                   : Graphics[Unit]          = Clip.lift
+  def lineTo               (x: Int, y: Int)                                                  : Graphics[Unit]          = LineTo(x, y).lift
+  def moveTo               (x: Int, y: Int)                                                  : Graphics[Unit]          = MoveTo(x, y).lift
+  def closePath                                                                              : Graphics[Unit]          = ClosePath.lift
+  def arc                  (value: C.Arc)                                                    : Graphics[Unit]          = Arc(value).lift
+  def rect                 (value: C.Rectangle)                                              : Graphics[Unit]          = Rect(value).lift
+  def fillRect             (value: C.Rectangle)                                              : Graphics[Unit]          = FillRect(value).lift
+  def strokeRect           (value: C.Rectangle)                                              : Graphics[Unit]          = StrokeRect(value).lift
+  def clearRect            (value: C.Rectangle)                                              : Graphics[Unit]          = ClearRect(value).lift
+  def scale                (x: Int, y: Int)                                                  : Graphics[Unit]          = Scale(x, y).lift
+  def rotate               (angle: Int)                                                      : Graphics[Unit]          = Rotate(angle).lift
+  def translate            (x: Int, y: Int)                                                  : Graphics[Unit]          = Translate(x, y).lift
+  def transform            (transform: C.Transform)                                          : Graphics[Unit]          = Transform(transform).lift
+  def textAlign                                                                              : Graphics[C.TextAlign]   = TextAlign.lift
+  def setTextAlign         (value: C.TextAlign)                                              : Graphics[Unit]          = SetTextAlign(value).lift
+  def font                                                                                   : Graphics[String]        = Font.lift
+  def setFont              (value: String)                                                   : Graphics[Unit]          = SetFont(value).lift
+  def fillText             (text: String, x: Int, y: Int)                                    : Graphics[Unit]          = FillText(text, x, y).lift
+  def strokeText           (text: String, x: Int, y: Int)                                    : Graphics[Unit]          = StrokeText(text, x, y).lift
+  def measureText          (value: String)                                                   : Graphics[C.TextMetrics] = MeasureText(value).lift
+  def save                                                                                   : Graphics[Unit]          = Save.lift
+  def restore                                                                                : Graphics[Unit]          = Restore.lift
+  def getImageData         (x: Int, y: Int, width: Int, height: Int)                         : Graphics[C.ImageData]   = GetImageData(x, y, width, height).lift
+  def putImageData         (data: C.ImageData, x: Int, y: Int)                               : Graphics[Unit]          = PutImageData(data, x, y).lift
+  def createImageData      (width: Int, height: Int)                                         : Graphics[C.ImageData]   = CreateImageData(width, height).lift
+  def createImageDataCopy  (data: C.ImageData)                                               : Graphics[C.ImageData]   = CreateImageDataCopy(data).lift
+  def drawImage            (source: C.ImageSource, x: Int, y: Int)                           : Graphics[Unit]          = DrawImage(source, x, y).lift
+  def setTimeout           (value: Graphics[Unit], delay: Int)                               : Graphics[Unit]          = SetTimeout(value, delay).lift
 
 }
 
