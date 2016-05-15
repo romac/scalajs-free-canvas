@@ -2,12 +2,10 @@ package me.romac
 package freecanvas
 package test
 
-import cats._
 import cats.std.all._
 import cats.syntax.all._
 
 import scala.scalajs.js.JSApp
-import org.scalajs.dom
 import org.scalajs.dom.html
 import org.scalajs.dom.document
 

@@ -3,7 +3,7 @@ package me.romac.freecanvas
 import scala.scalajs.js.timers
 
 import cats.{ ~> }
-import cats.free.{ Free, Trampoline }
+import cats.free.Trampoline
 import cats.implicits._
 
 import me.romac.freecanvas.{ Canvas => C }
@@ -21,9 +21,10 @@ class DOMIntepreter(ctx: C.Context2D) extends (GraphicsF ~> Trampoline) {
     case SetShadowBlur(value)                => done(ctx.shadowBlur = value)
     case SetShadowOffsetX(value)             => done(ctx.shadowOffsetX = value)
     case SetShadowOffsetY(value)             => done(ctx.shadowOffsetY = value)
-    case SetLineCap(lineCap)                 => done(ctx.lineCap = lineCap.value)
-    // case SetComposite(composite)          => done(ctx.composite = composite.value)
-    // case SetAlpha(value)                  => done(ctx.alpha = value)
+    case SetLineCap(lineCap)                 => done(ctx.lineCap = lineCap.asString)
+    case SetLineJoin(lineJoin)               => done(ctx.lineJoin = lineJoin.asString)
+    case SetComposite(composite)             => done(ctx.globalCompositeOperation = composite.asString)
+    case SetAlpha(value)                     => done(ctx.globalAlpha = value)
     case BeginPath                           => done(ctx.beginPath())
     case Stroke                              => done(ctx.stroke())
     case Fill                                => done(ctx.fill())
@@ -40,8 +41,8 @@ class DOMIntepreter(ctx: C.Context2D) extends (GraphicsF ~> Trampoline) {
     case Rotate(angle)                       => done(ctx.rotate(angle))
     case Translate(x, y)                     => done(ctx.translate(x, y))
     case Transform(t)                        => done(ctx.transform(t.m11, t.m12, t.m21, t.m22, t.dx, t.dy))
-    case TextAlign                           => done(C.TextAlign(ctx.textAlign))
-    case SetTextAlign(align)                 => done(ctx.textAlign = align.value)
+    case TextAlign                           => done(C.TextAlign.unsafeFromString(ctx.textAlign))
+    case SetTextAlign(align)                 => done(ctx.textAlign = align.asString)
     case Font                                => done(ctx.font)
     case SetFont(value)                      => done(ctx.font = value)
     case FillText(text, x, y)                => done(ctx.fillText(text, x, y))
@@ -53,11 +54,12 @@ class DOMIntepreter(ctx: C.Context2D) extends (GraphicsF ~> Trampoline) {
     case PutImageData(data, x, y)            => done(ctx.putImageData(data, x, y))
     case CreateImageData(width, height)      => done(ctx.createImageData(width, height))
     case CreateImageDataCopy(data)           => done(ctx.createImageData(data))
-    // case DrawImage(source, x, y)          => done(ctx.drawImage())
+    case DrawImage(src, x, y)                => done(ctx.drawImage(src, x, y))
     case SetTimeout(value, timeout)          => done {
       timers.setTimeout(timeout) {
         value.foldMap(this).run
-      }: Unit
+      }
+      ()
     }
   }
 }
