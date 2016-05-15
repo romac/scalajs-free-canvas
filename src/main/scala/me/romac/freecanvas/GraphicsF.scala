@@ -7,7 +7,7 @@ import cats.free.Free
 import me.romac.freecanvas.{ Canvas => C }
 
 sealed trait GraphicsF[A] {
-  def lift: Free[GraphicsF, A] = Free.liftF(this)
+  def lift: Graphics[A] = Free.liftF(this)
 }
 
 object GraphicsF {
@@ -52,6 +52,6 @@ object GraphicsF {
   case class  CreateImageDataCopy  (data: C.ImageData)                       extends GraphicsF[C.ImageData]
   case class  DrawImage            (source: C.ImageSource, x: Int, y: Int)   extends GraphicsF[Unit]
 
-  case class  SetTimeout           (value: Free[GraphicsF, Unit], delay: Int) extends GraphicsF[Unit]
+  case class  SetTimeout           (value: Graphics[Unit], delay: Int)       extends GraphicsF[Unit]
 }
 

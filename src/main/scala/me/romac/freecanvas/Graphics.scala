@@ -2,7 +2,7 @@
 package me.romac
 package freecanvas
 
-import cats.{ ~> }
+import cats.{ ~>, Monad }
 import cats.implicits._
 import cats.free.{ Free, Trampoline }
 
@@ -11,10 +11,11 @@ import me.romac.freecanvas.GraphicsF._
 
 object Graphics {
 
-  def run[A](ctx: C.Context2D)(graphics: Graphics[A]): A = {
-    val interpret = new DOMIntepreter(ctx)
-    graphics.foldMap(interpret).run
-  }
+  def runWith[A, M[_]](interpret: GraphicsF ~> M)(graphics: Graphics[A])(implicit M: Monad[M]): M[A] =
+    graphics.foldMap(interpret)
+
+  def run[A](ctx: C.Context2D)(graphics: Graphics[A]): A =
+    runWith(new DOMIntepreter(ctx))(graphics).run
 
   def withContext[A](action: Graphics[A]): Graphics[A] =
     for {
