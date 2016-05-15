@@ -106,7 +106,7 @@ object Main extends JSApp {
   val SCALE = 1
   val SIZE  = 4
 
-  def drawPoint(point: Point): G.Graphics[Unit] = point match {
+  def drawPoint(point: Point): Graphics[Unit] = point match {
     case Point(_, x, y, color, true) =>
       val rect = C.Rectangle(x * SCALE, y * SCALE, SIZE * 2, SIZE * 2)
 
@@ -135,12 +135,12 @@ object Main extends JSApp {
       yield ()
   }
 
-  def draw(points: List[Point]): G.Graphics[Unit] = for {
+  def draw(points: List[Point]): Graphics[Unit] = for {
     _ <- G.clearRect(C.Rectangle(0, 0, 800, MAX))
     _ <- points.map(drawPoint).sequence_
   } yield ()
 
-  def loop(points: List[Point], centroids: List[Point]): G.Graphics[Unit] = for {
+  def loop(points: List[Point], centroids: List[Point]): Graphics[Unit] = for {
     _ <- draw(points ++ centroids)
     (newPoints, newCentroids) = kMeans(points ++ centroids)
     _ <- G.setTimeout(draw(points ++ newCentroids), 500)
